@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { colorForCategory } from "@/lib/colors";
 import { labelForUrl } from "@/lib/links";
-import { KNOWN_CATEGORIES, NEW_CATEGORY_OPTION } from "@/lib/entrantIngest";
+import { NEW_CATEGORY_OPTION } from "@/lib/entrantIngest";
 import ScrollThumb from "@/components/ScrollThumb";
 import type { GraphNode, GraphEdge } from "@/lib/types";
 
@@ -12,6 +12,7 @@ interface Props {
   inViewIds: Set<string>;
   nodeById: Map<string, GraphNode>;
   neighborsOf: (id: string) => { edge: GraphEdge; otherId: string }[];
+  knownCategories: string[];
   onSelectNode: (id: string) => void;
   onPinExtra: (id: string) => void;
 }
@@ -53,7 +54,7 @@ function SocialLinks({ node }: { node: GraphNode }) {
   );
 }
 
-export default function DetailPanel({ node, inViewIds, nodeById, neighborsOf, onSelectNode, onPinExtra }: Props) {
+export default function DetailPanel({ node, inViewIds, nodeById, neighborsOf, knownCategories, onSelectNode, onPinExtra }: Props) {
   const connections = neighborsOf(node.id)
     .map(({ edge, otherId }) => ({ edge, other: nodeById.get(otherId) }))
     .filter((c): c is { edge: typeof c.edge; other: GraphNode } => Boolean(c.other));
@@ -99,13 +100,12 @@ export default function DetailPanel({ node, inViewIds, nodeById, neighborsOf, on
   }
 
   function startEditingCategory() {
-    if (KNOWN_CATEGORIES.includes(node.category)) {
-      setCategoryDraft(node.category);
-      setNewCategoryDraft("");
-    } else {
-      setCategoryDraft(NEW_CATEGORY_OPTION);
-      setNewCategoryDraft(node.category);
-    }
+    // node.category is always in knownCategories - it's derived from every
+    // node's own category, including this one - so there's no "unknown
+    // category" case to special-case here (unlike AddEntrantBar, where the
+    // entrant being reviewed isn't part of the live dataset yet).
+    setCategoryDraft(node.category);
+    setNewCategoryDraft("");
     setCategoryError(null);
     setEditingCategory(true);
   }
@@ -165,10 +165,7 @@ export default function DetailPanel({ node, inViewIds, nodeById, neighborsOf, on
                   disabled={categorySaving}
                   className="w-full border-b border-white/15 bg-transparent py-1 text-xs text-white focus:border-white focus:outline-none disabled:opacity-50"
                 >
-                  {!KNOWN_CATEGORIES.includes(categoryDraft) && categoryDraft !== NEW_CATEGORY_OPTION && (
-                    <option value={categoryDraft} className="bg-ink">{categoryDraft}</option>
-                  )}
-                  {KNOWN_CATEGORIES.map((c) => (
+                  {knownCategories.map((c) => (
                     <option key={c} value={c} className="bg-ink">{c}</option>
                   ))}
                   <option value={NEW_CATEGORY_OPTION} className="bg-ink">+ New category…</option>

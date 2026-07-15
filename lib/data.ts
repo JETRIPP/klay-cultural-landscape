@@ -1,3 +1,4 @@
+import { KNOWN_CATEGORIES } from "./entrantIngest";
 import type { GraphNode, GraphEdge } from "./types";
 
 // Pure functions, parametrized on nodes/edges rather than a static import -
@@ -29,6 +30,16 @@ export function computeCategories(nodes: GraphNode[]): { name: string; count: nu
   )
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count);
+}
+
+// The seed KNOWN_CATEGORIES list plus whatever categories teammates have
+// actually created (e.g. via "+ New category..."), so a custom category
+// someone added shows up when editing any other entrant too, not just the
+// one it was created on.
+export function computeKnownCategoryNames(nodes: GraphNode[]): string[] {
+  const names = new Set(KNOWN_CATEGORIES);
+  for (const n of nodes) names.add(n.category);
+  return Array.from(names).sort((a, b) => a.localeCompare(b));
 }
 
 // region -> country -> city -> count, built from nodes with a resolved country

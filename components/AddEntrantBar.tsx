@@ -2,21 +2,25 @@
 
 import { useState } from "react";
 import { labelForUrl } from "@/lib/links";
-import { KNOWN_CATEGORIES, NEW_CATEGORY_OPTION } from "@/lib/entrantIngest";
+import { NEW_CATEGORY_OPTION } from "@/lib/entrantIngest";
 import type { GraphNode } from "@/lib/types";
 
 type Status = "idle" | "researching" | "reviewing" | "confirming" | "error";
+
+interface Props {
+  knownCategories: string[];
+}
 
 // Researches an entrant via Claude, then holds the result in a review
 // window rather than writing it straight to data/graph.json - AI-researched
 // bios/links/categories can be wrong, so a human confirms before anything
 // joins the map (and eventually the spreadsheet export).
-export default function AddEntrantBar() {
+export default function AddEntrantBar({ knownCategories }: Props) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
   const [entrant, setEntrant] = useState<GraphNode | null>(null);
-  const [category, setCategory] = useState(""); // KNOWN_CATEGORIES value, or NEW_CATEGORY_OPTION
+  const [category, setCategory] = useState(""); // a knownCategories value, or NEW_CATEGORY_OPTION
   const [newCategory, setNewCategory] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
@@ -38,7 +42,7 @@ export default function AddEntrantBar() {
       // Claude is prompted to prefer an existing category, but may still
       // propose a new one - default the picker to whichever mode matches
       // what came back instead of silently discarding a novel category.
-      if (KNOWN_CATEGORIES.includes(data.entrant.category)) {
+      if (knownCategories.includes(data.entrant.category)) {
         setCategory(data.entrant.category);
         setNewCategory("");
       } else {
@@ -128,10 +132,10 @@ export default function AddEntrantBar() {
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full border-b border-white/15 bg-transparent py-1 text-xs text-white focus:border-white focus:outline-none"
               >
-                {!KNOWN_CATEGORIES.includes(category) && category !== NEW_CATEGORY_OPTION && (
+                {!knownCategories.includes(category) && category !== NEW_CATEGORY_OPTION && (
                   <option value={category} className="bg-ink">{category}</option>
                 )}
-                {KNOWN_CATEGORIES.map((c) => (
+                {knownCategories.map((c) => (
                   <option key={c} value={c} className="bg-ink">{c}</option>
                 ))}
                 <option value={NEW_CATEGORY_OPTION} className="bg-ink">+ New category…</option>

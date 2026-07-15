@@ -7,7 +7,13 @@ import DetailPanel from "@/components/DetailPanel";
 import EmptyState from "@/components/EmptyState";
 import Wordmark from "@/components/Wordmark";
 import AddEntrantBar from "@/components/AddEntrantBar";
-import { buildNodeById, buildNeighborsIndex, computeCategories, computeLocationTree } from "@/lib/data";
+import {
+  buildNodeById,
+  buildNeighborsIndex,
+  computeCategories,
+  computeKnownCategoryNames,
+  computeLocationTree,
+} from "@/lib/data";
 import { colorForCategory } from "@/lib/colors";
 import type { GraphNode, GraphEdge } from "@/lib/types";
 
@@ -23,6 +29,7 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
   const nodeById = useMemo(() => buildNodeById(nodes), [nodes]);
   const neighborsOf = useMemo(() => buildNeighborsIndex(edges), [edges]);
   const categories = useMemo(() => computeCategories(nodes), [nodes]);
+  const knownCategoryNames = useMemo(() => computeKnownCategoryNames(nodes), [nodes]);
   const locationTree = useMemo(() => computeLocationTree(nodes), [nodes]);
 
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
@@ -222,7 +229,7 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
         <div ref={wordmarkRef}>
           <Wordmark top="CULTURAL" bottom="LANDSCAPE" className="text-xs font-medium text-white" />
         </div>
-        <AddEntrantBar />
+        <AddEntrantBar knownCategories={knownCategoryNames} />
       </div>
       <FacetBar
         categories={categories}
@@ -305,6 +312,7 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
               inViewIds={effectiveIds}
               nodeById={nodeById}
               neighborsOf={neighborsOf}
+              knownCategories={knownCategoryNames}
               onSelectNode={(id) => setSelectedNodeId(id)}
               onPinExtra={pinExtra}
             />
