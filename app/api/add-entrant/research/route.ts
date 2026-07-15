@@ -3,6 +3,13 @@ import Anthropic from "@anthropic-ai/sdk";
 import { RECORD_ENTRANT_TOOL, RecordEntrantInput, buildNodeFromInput } from "@/lib/entrantIngest";
 import { getUsedSlugs } from "@/lib/db";
 
+// Without this, the route falls back to the platform's default serverless
+// timeout (well under a minute), which a multi-round web-search research
+// call can easily exceed - the function gets killed mid-request with no
+// clean error, which reads to the client as an indefinite hang rather than
+// a fast failure.
+export const maxDuration = 60;
+
 // Researches an entrant and returns a preview node - nothing is written to
 // the database here. The user reviews the result and POSTs it to /confirm to
 // actually add it, so a bad or hallucinated research pass never silently
