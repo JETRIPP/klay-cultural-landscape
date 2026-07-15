@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
 import { RECORD_ENTRANT_TOOL, RecordEntrantInput, buildNodeFromInput } from "@/lib/entrantIngest";
-import type { GraphData } from "@/lib/types";
-
-const GRAPH_PATH = path.join(process.cwd(), "data", "graph.json");
+import { getUsedSlugs } from "@/lib/db";
 
 // Researches an entrant and returns a preview node - nothing is written to
-// disk here. The user reviews the result and POSTs it to /confirm to
+// the database here. The user reviews the result and POSTs it to /confirm to
 // actually add it, so a bad or hallucinated research pass never silently
 // reaches the map or the eventual spreadsheet export.
 export async function POST(request: NextRequest) {
@@ -55,10 +51,7 @@ export async function POST(request: NextRequest) {
   }
   const input = toolUse.input as RecordEntrantInput;
 
-  const graphRaw = await fs.readFile(GRAPH_PATH, "utf-8");
-  const graph = JSON.parse(graphRaw) as GraphData;
-  const usedSlugs = new Set(graph.nodes.map((n) => n.id));
-
+  const usedSlugs = await getUsedSlugs();
   const entrant = buildNodeFromInput(input, usedSlugs);
 
   return NextResponse.json({ entrant });

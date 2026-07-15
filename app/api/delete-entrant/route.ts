@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
-import type { GraphData } from "@/lib/types";
+import { deleteEntrant } from "@/lib/db";
 
-const GRAPH_PATH = path.join(process.cwd(), "data", "graph.json");
-
-// Permanently removes one entrant and every edge that references it. The
+// Permanently removes one entrant. The database's ON DELETE CASCADE on the
+// edges table removes any edges referencing this id automatically. The
 // frontend gates this behind its own confirm step - this route trusts
 // whatever id it's given, since the confirmation already happened in the UI.
 export async function POST(request: NextRequest) {
@@ -14,18 +11,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "An entrant id is required." }, { status: 400 });
   }
 
-  const graphRaw = await fs.readFile(GRAPH_PATH, "utf-8");
-  const graph = JSON.parse(graphRaw) as GraphData;
-
-  const nodeIndex = graph.nodes.findIndex((n) => n.id === id);
-  if (nodeIndex === -1) {
+  const deleted = await deleteEntrant(id);
+  if (!deleted) {
     return NextResponse.json({ error: "Entrant not found." }, { status: 404 });
   }
-
-  graph.nodes.splice(nodeIndex, 1);
-  graph.edges = graph.edges.filter((e) => e.source !== id && e.target !== id);
-
-  await fs.writeFile(GRAPH_PATH, JSON.stringify(graph, null, 2), "utf-8");
 
   return NextResponse.json({ success: true });
 }

@@ -2,15 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { colorForCategory } from "@/lib/colors";
-import { nodeById, neighborsOf } from "@/lib/data";
 import { labelForUrl } from "@/lib/links";
 import { KNOWN_CATEGORIES, NEW_CATEGORY_OPTION } from "@/lib/entrantIngest";
 import ScrollThumb from "@/components/ScrollThumb";
-import type { GraphNode } from "@/lib/types";
+import type { GraphNode, GraphEdge } from "@/lib/types";
 
 interface Props {
   node: GraphNode;
   inViewIds: Set<string>;
+  nodeById: Map<string, GraphNode>;
+  neighborsOf: (id: string) => { edge: GraphEdge; otherId: string }[];
   onSelectNode: (id: string) => void;
   onPinExtra: (id: string) => void;
 }
@@ -52,7 +53,7 @@ function SocialLinks({ node }: { node: GraphNode }) {
   );
 }
 
-export default function DetailPanel({ node, inViewIds, onSelectNode, onPinExtra }: Props) {
+export default function DetailPanel({ node, inViewIds, nodeById, neighborsOf, onSelectNode, onPinExtra }: Props) {
   const connections = neighborsOf(node.id)
     .map(({ edge, otherId }) => ({ edge, other: nodeById.get(otherId) }))
     .filter((c): c is { edge: typeof c.edge; other: GraphNode } => Boolean(c.other));
