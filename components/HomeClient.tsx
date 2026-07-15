@@ -201,36 +201,40 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
           type="button"
           onClick={reset}
           aria-label="Reset view"
-          className="relative shrink-0 cursor-pointer opacity-90 hover:opacity-100"
-          style={
-            logoHeight && logoAspect
-              ? { width: logoHeight / logoAspect, height: logoHeight }
-              : undefined
-          }
+          className="flex shrink-0 cursor-pointer items-center gap-3 opacity-90 hover:opacity-100"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            ref={logoRef}
-            src="/klay-logo-white.png"
-            alt="KLAY"
-            onLoad={(e) => setLogoAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)}
+          <div
+            className="relative shrink-0"
             style={
-              logoHeight
-                ? {
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    width: logoHeight,
-                    height: "auto",
-                    transform: "translate(-50%, -50%) rotate(90deg)",
-                  }
+              logoHeight && logoAspect
+                ? { width: logoHeight / logoAspect, height: logoHeight }
                 : undefined
             }
-          />
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              ref={logoRef}
+              src="/klay-logo-white.png"
+              alt="KLAY"
+              onLoad={(e) => setLogoAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)}
+              style={
+                logoHeight
+                  ? {
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      width: logoHeight,
+                      height: "auto",
+                      transform: "translate(-50%, -50%) rotate(90deg)",
+                    }
+                  : undefined
+              }
+            />
+          </div>
+          <div ref={wordmarkRef}>
+            <Wordmark top="CULTURAL" bottom="LANDSCAPE" className="text-xs font-medium text-white" />
+          </div>
         </button>
-        <div ref={wordmarkRef}>
-          <Wordmark top="CULTURAL" bottom="LANDSCAPE" className="text-xs font-medium text-white" />
-        </div>
         <AddEntrantBar knownCategories={knownCategoryNames} />
       </div>
       <FacetBar
