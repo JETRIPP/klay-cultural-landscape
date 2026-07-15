@@ -29,6 +29,11 @@ export async function POST(request: NextRequest) {
 
   const client = new Anthropic();
 
+  // Temporary instrumentation to find the actual bottleneck (raw model
+  // latency vs. number of search rounds vs. something else) instead of
+  // guessing further - safe to remove once the cause is confirmed.
+  const startedAt = Date.now();
+
   let response;
   try {
     response = await client.messages.create({
@@ -45,7 +50,15 @@ export async function POST(request: NextRequest) {
         },
       ],
     });
+    const blockCounts = response.content.reduce<Record<string, number>>((acc, b) => {
+      acc[b.type] = (acc[b.type] ?? 0) + 1;
+      return acc;
+    }, {});
+    console.log(
+      `[research] durationMs=${Date.now() - startedAt} stopReason=${response.stop_reason} usage=${JSON.stringify(response.usage)} blocks=${JSON.stringify(blockCounts)}`
+    );
   } catch (err) {
+    console.log(`[research] failed after durationMs=${Date.now() - startedAt}`);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({ error: `Research request failed: ${message}` }, { status: 502 });
   }
