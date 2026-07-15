@@ -197,8 +197,11 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
   return (
     <div className="flex min-h-dvh flex-col gap-3 overflow-y-auto p-4 lg:h-dvh lg:overflow-hidden">
       <div className="flex flex-wrap items-start gap-3">
-        <div
-          className="relative"
+        <button
+          type="button"
+          onClick={reset}
+          aria-label="Reset view"
+          className="relative shrink-0 cursor-pointer opacity-90 hover:opacity-100"
           style={
             logoHeight && logoAspect
               ? { width: logoHeight / logoAspect, height: logoHeight }
@@ -223,9 +226,8 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
                   }
                 : undefined
             }
-            className="opacity-90"
           />
-        </div>
+        </button>
         <div ref={wordmarkRef}>
           <Wordmark top="CULTURAL" bottom="LANDSCAPE" className="text-xs font-medium text-white" />
         </div>
