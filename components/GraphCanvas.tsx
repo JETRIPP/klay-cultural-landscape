@@ -192,7 +192,10 @@ export default function GraphCanvas({
   }
 
   return (
-    <div ref={containerRef} className="relative h-full w-full">
+    // touch-action: none stops the browser's own pan/pinch-zoom gesture
+    // handling from fighting with force-graph's own touch-driven pan/zoom
+    // (both would otherwise try to interpret the same drag/pinch).
+    <div ref={containerRef} className="relative h-full w-full touch-none">
       <div className="absolute top-3 right-3 z-10 flex items-center gap-2 bg-black/40 px-2 py-1 font-mono text-xs text-white/60 backdrop-blur-sm">
         <button
           onClick={() => zoomBy(1 / 1.4)}

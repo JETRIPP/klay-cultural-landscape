@@ -188,8 +188,8 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
   const outsideCount = effectiveIds.size > 0 ? ghostIds.size : 0;
 
   return (
-    <div className="flex h-screen flex-col gap-3 overflow-hidden p-4">
-      <div className="flex items-start gap-3">
+    <div className="flex min-h-dvh flex-col gap-3 overflow-y-auto p-4 lg:h-dvh lg:overflow-hidden">
+      <div className="flex flex-wrap items-start gap-3">
         <div
           className="relative"
           style={
@@ -249,9 +249,9 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
         </p>
       )}
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="grid grid-cols-1 gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_280px]">
         <div
-          className="relative h-full min-h-0 overflow-hidden rounded-lg border border-white/[0.06]"
+          className="relative h-[65dvh] min-h-[320px] overflow-hidden rounded-lg border border-white/[0.06] lg:h-full lg:min-h-0"
           style={{
             background:
               "radial-gradient(ellipse at 50% 38%, rgba(255,255,255,0.035), transparent 62%), var(--color-ink-raised)",
@@ -298,7 +298,7 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
           )}
         </div>
 
-        <div className="h-full min-h-0">
+        <div className="min-h-0 lg:h-full">
           {selectedNode ? (
             <DetailPanel
               node={selectedNode}
@@ -309,7 +309,7 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
               onPinExtra={pinExtra}
             />
           ) : (
-            <div className="flex h-full items-center justify-center border-l border-white/10 pl-4 text-center text-xs text-white/40">
+            <div className="flex items-center justify-center border-t border-white/10 pt-4 text-center text-xs text-white/40 lg:h-full lg:border-l lg:border-t-0 lg:pt-0 lg:pl-4">
               Select a node to see its bio, links, and connections.
             </div>
           )}

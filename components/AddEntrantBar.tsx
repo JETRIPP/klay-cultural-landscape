@@ -92,14 +92,14 @@ export default function AddEntrantBar() {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="ml-auto flex items-center gap-2">
+      <form onSubmit={handleSubmit} className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
         {status === "error" && <span className="font-mono text-[10px] text-accent">{error}</span>}
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Add entrant by name or URL..."
           disabled={busy || status === "reviewing"}
-          className="w-64 border-b border-white/15 bg-transparent py-1 text-xs text-white placeholder:text-white/30 focus:border-white focus:outline-none disabled:opacity-50"
+          className="w-full border-b border-white/15 bg-transparent py-1 text-xs text-white placeholder:text-white/30 focus:border-white focus:outline-none disabled:opacity-50 sm:w-64"
         />
         <button
           type="submit"

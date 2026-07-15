@@ -61,7 +61,7 @@ export default function FacetBar({
 
   return (
     <div className="flex flex-col gap-3 border-b border-white/10 pb-3">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+      <div className="scrollbar-hidden -mx-4 flex flex-nowrap items-center gap-x-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:gap-y-2 sm:overflow-visible sm:px-0 sm:pb-0">
         {categories.map((c) => {
           const active = selectedCategories.has(c.name);
           const color = colorForCategory(c.name);
@@ -70,7 +70,7 @@ export default function FacetBar({
             <button
               key={c.name}
               onClick={() => onToggleCategory(c.name)}
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-colors"
+              className="flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-colors"
               style={{
                 background: active ? pillGradient(c.name) : "transparent",
                 color: textColor,
@@ -132,7 +132,7 @@ export default function FacetBar({
           </select>
         )}
 
-        <div className="relative ml-auto w-56">
+        <div className="relative w-full sm:ml-auto sm:w-56">
           <svg
             viewBox="0 0 24 24"
             fill="none"

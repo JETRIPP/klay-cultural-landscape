@@ -134,10 +134,10 @@ export default function DetailPanel({ node, inViewIds, nodeById, neighborsOf, on
   }
 
   return (
-    <div className="relative h-full">
+    <div className="relative lg:h-full">
       <div
         ref={containerRef}
-        className="scrollbar-hidden h-full overflow-y-auto border-l border-white/10 pr-3 pl-4"
+        className="scrollbar-hidden overflow-y-auto border-t border-white/10 pt-3 pr-3 pl-4 lg:h-full lg:border-l lg:border-t-0 lg:pt-0"
       >
         <div ref={contentRef} className="flex flex-col gap-4">
           <div>
