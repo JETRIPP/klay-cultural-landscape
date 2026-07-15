@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { labelForUrl } from "@/lib/links";
 import { NEW_CATEGORY_OPTION } from "@/lib/entrantIngest";
 import { parseJsonResponse, fallbackErrorMessage } from "@/lib/http";
@@ -26,6 +26,24 @@ export default function AddEntrantBar({ knownCategories }: Props) {
   const [newCategory, setNewCategory] = useState("");
   const modalContainerRef = useRef<HTMLDivElement>(null);
   const modalContentRef = useRef<HTMLDivElement>(null);
+
+  const modalOpen = status === "reviewing" || status === "confirming";
+  // Without this, the page behind the fixed modal overlay can still scroll
+  // (especially on mobile, where the root layout allows page scroll) -
+  // showing the browser's own native scrollbar instead of just the modal's
+  // own internal one, and letting the background drift out from under it.
+  useEffect(() => {
+    if (!modalOpen) return;
+    const html = document.documentElement;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = html.style.overflow;
+    document.body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      html.style.overflow = previousHtmlOverflow;
+    };
+  }, [modalOpen]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -119,9 +137,9 @@ export default function AddEntrantBar({ knownCategories }: Props) {
         </button>
       </form>
 
-      {(status === "reviewing" || status === "confirming") && entrant && (
+      {modalOpen && entrant && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="relative flex max-h-[80vh] w-full max-w-lg flex-col border border-white/15 bg-ink-raised">
+          <div className="relative flex max-h-[80dvh] w-full max-w-lg flex-col border border-white/15 bg-ink-raised">
             <div ref={modalContainerRef} className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto py-5 pl-5 pr-3">
               <div ref={modalContentRef} className="flex flex-col gap-4">
                 <div>
