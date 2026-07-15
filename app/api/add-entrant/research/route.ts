@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   let response;
   try {
     response = await client.messages.create({
-      model: "claude-opus-4-8",
+      model: "claude-sonnet-5",
       max_tokens: 4096,
       tools: [
         { type: "web_search_20260209", name: "web_search", max_uses: 8 },
