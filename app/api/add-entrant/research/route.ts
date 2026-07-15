@@ -28,13 +28,13 @@ export async function POST(request: NextRequest) {
       model: "claude-sonnet-5",
       max_tokens: 4096,
       tools: [
-        { type: "web_search_20260209", name: "web_search", max_uses: 8 },
+        { type: "web_search_20260209", name: "web_search", max_uses: 4 },
         RECORD_ENTRANT_TOOL,
       ],
       messages: [
         {
           role: "user",
-          content: `Research this person, studio, or organization for a cultural-landscape database entry: "${query.trim()}". Use web search to find their role/category, location (city + country), a factual 2-4 sentence bio, career highlights, up to 3 real notable works or projects (with URLs when you find them), and social/contact links (main website, secondary website if different, Instagram, Twitter/X, TikTok). Once you've gathered what you can, call record_entrant exactly once with your findings. If some fields can't be found, still call record_entrant and leave those fields null/empty rather than guessing.`,
+          content: `Research this person, studio, or organization for a cultural-landscape database entry: "${query.trim()}". Use web search to find their role/category, location (city + country), a factual 2-4 sentence bio, career highlights, up to 3 real notable works or projects (with URLs when you find them), and social/contact links (main website, secondary website if different, Instagram, Twitter/X, TikTok). Be efficient: use as few searches as possible - prefer 1-2 broad searches (e.g. their name plus site/profile) that cover most of these fields at once over one search per field, and stop searching as soon as you have enough to proceed. Once you've gathered what you can, call record_entrant exactly once with your findings. If some fields can't be found, still call record_entrant and leave those fields null/empty rather than guessing or searching further.`,
         },
       ],
     });
