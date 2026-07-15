@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { colorForCategory } from "@/lib/colors";
 import { labelForUrl } from "@/lib/links";
 import { NEW_CATEGORY_OPTION } from "@/lib/entrantIngest";
+import { parseJsonResponse, fallbackErrorMessage } from "@/lib/http";
 import ScrollThumb from "@/components/ScrollThumb";
 import type { GraphNode, GraphEdge } from "@/lib/types";
 
@@ -90,8 +91,8 @@ export default function DetailPanel({ node, inViewIds, nodeById, neighborsOf, kn
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: node.id }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to delete entrant.");
+      const data = await parseJsonResponse(res);
+      if (!res.ok) throw new Error(data?.error || fallbackErrorMessage(res));
       window.location.reload();
     } catch (err) {
       setDeleteStep("confirming");
@@ -124,8 +125,8 @@ export default function DetailPanel({ node, inViewIds, nodeById, neighborsOf, kn
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: node.id, category: finalCategory }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to update category.");
+      const data = await parseJsonResponse(res);
+      if (!res.ok) throw new Error(data?.error || fallbackErrorMessage(res));
       window.location.reload();
     } catch (err) {
       setCategorySaving(false);

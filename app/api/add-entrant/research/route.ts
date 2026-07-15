@@ -8,7 +8,7 @@ import { getUsedSlugs } from "@/lib/db";
 // call can easily exceed - the function gets killed mid-request with no
 // clean error, which reads to the client as an indefinite hang rather than
 // a fast failure.
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 // Researches an entrant and returns a preview node - nothing is written to
 // the database here. The user reviews the result and POSTs it to /confirm to

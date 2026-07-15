@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { labelForUrl } from "@/lib/links";
 import { NEW_CATEGORY_OPTION } from "@/lib/entrantIngest";
+import { parseJsonResponse, fallbackErrorMessage } from "@/lib/http";
 import type { GraphNode } from "@/lib/types";
 
 type Status = "idle" | "researching" | "reviewing" | "confirming" | "error";
@@ -36,18 +37,19 @@ export default function AddEntrantBar({ knownCategories }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: trimmed }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Research failed.");
-      setEntrant(data.entrant);
+      const data = await parseJsonResponse(res);
+      if (!res.ok || !data) throw new Error(data?.error || fallbackErrorMessage(res));
+      const researched = data.entrant as GraphNode;
+      setEntrant(researched);
       // Claude is prompted to prefer an existing category, but may still
       // propose a new one - default the picker to whichever mode matches
       // what came back instead of silently discarding a novel category.
-      if (knownCategories.includes(data.entrant.category)) {
-        setCategory(data.entrant.category);
+      if (knownCategories.includes(researched.category)) {
+        setCategory(researched.category);
         setNewCategory("");
       } else {
         setCategory(NEW_CATEGORY_OPTION);
-        setNewCategory(data.entrant.category);
+        setNewCategory(researched.category);
       }
       setStatus("reviewing");
     } catch (err) {
@@ -71,11 +73,11 @@ export default function AddEntrantBar({ knownCategories }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ entrant: { ...entrant, category: finalCategory } }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to add entrant.");
+      const data = await parseJsonResponse(res);
+      if (!res.ok || !data) throw new Error(data?.error || fallbackErrorMessage(res));
 
       const url = new URL(window.location.href);
-      url.searchParams.set("highlight", data.node.id);
+      url.searchParams.set("highlight", (data.node as GraphNode).id);
       window.location.href = url.toString();
     } catch (err) {
       setStatus("reviewing");
