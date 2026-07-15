@@ -8,19 +8,86 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Warm near-black instrument-panel palette - deliberately not a flat
+     neutral gray/black, so hairlines and glows read as tinted rather than
+     cold/clinical. */
+  --color-ink: #0b0a09;
+  --color-ink-raised: #15120e;
+  --color-parchment: #d9cdb0;
+  /* A single functional accent, in the Braun/Rams sense: color that marks
+     the one thing to look at (an actionable prompt), never used
+     decoratively. Node selection itself now glows in the node's own
+     category color instead. */
+  --color-accent: #c9391f;
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-technical);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0b0a09;
+    --foreground: #ede6da;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-display), Arial, Helvetica, sans-serif;
+}
+
+/* A thin hairline with a small dot thumb, replacing the browser's default
+   chunky range-input chrome - echoes the graph's own precise node dots
+   rather than looking like a generic form control. */
+.range-thin {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.range-thin::-webkit-slider-runnable-track {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.range-thin::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 7px;
+  height: 7px;
+  margin-top: -3px;
+  border-radius: 9999px;
+  background: #ede6da;
+}
+
+.range-thin::-moz-range-track {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+}
+
+.range-thin::-moz-range-thumb {
+  width: 7px;
+  height: 7px;
+  border: none;
+  border-radius: 9999px;
+  background: #ede6da;
+}
+
+.range-thin:focus {
+  outline: none;
+}
+
+/* Hides the native scrollbar entirely - a custom track/dot overlay (see
+   ScrollThumb in DetailPanel) replaces it, since no browser lets a
+   ::-webkit-scrollbar-thumb be pinned to a fixed dot size; it always
+   stretches to the scrollable ratio instead of staying a single node. */
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
 }
