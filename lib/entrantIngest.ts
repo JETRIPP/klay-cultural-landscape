@@ -34,7 +34,6 @@ export const RECORD_ENTRANT_TOOL = {
       cv: { type: ["string", "null"], description: "Career highlights / notable roles, or null if none found." },
       notableWork: {
         type: "array",
-        maxItems: 3,
         description: "Up to 3 notable works/projects, real ones found via search.",
         items: {
           type: "object",
@@ -90,7 +89,7 @@ export function buildNodeFromInput(input: RecordEntrantInput, usedSlugs: Set<str
     },
     bio: input.bio || null,
     cv: input.cv,
-    notableWork: input.notableWork.map((w) => ({ label: w.label, url: w.url, kind: w.kind })),
+    notableWork: input.notableWork.slice(0, 3).map((w) => ({ label: w.label, url: w.url, kind: w.kind })),
     socials: {
       mainUrl: input.mainUrl,
       website: input.website,
