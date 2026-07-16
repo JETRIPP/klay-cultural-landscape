@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { RECORD_ENTRANT_TOOL, RecordEntrantInput, buildNodeFromInput } from "@/lib/entrantIngest";
-import { getUsedSlugs } from "@/lib/db";
+import { RECORD_ENTRANT_TOOL, RecordEntrantInput, baseSlug, buildNodeFromInput } from "@/lib/entrantIngest";
+import { getEntrantNameById, getUsedSlugs } from "@/lib/db";
 
 // Without this, the route falls back to the platform's default serverless
 // timeout (well under a minute), which a multi-round web-search research
@@ -73,7 +73,14 @@ export async function POST(request: NextRequest) {
   const input = toolUse.input as RecordEntrantInput;
 
   const usedSlugs = await getUsedSlugs();
+  // Checked before buildNodeFromInput mutates usedSlugs with the new
+  // entrant's own (possibly disambiguated) slug.
+  const duplicateSlug = usedSlugs.has(baseSlug(input.name)) ? baseSlug(input.name) : null;
   const entrant = buildNodeFromInput(input, usedSlugs);
 
-  return NextResponse.json({ entrant });
+  const possibleDuplicate = duplicateSlug
+    ? { id: duplicateSlug, name: (await getEntrantNameById(duplicateSlug)) ?? duplicateSlug }
+    : null;
+
+  return NextResponse.json({ entrant, possibleDuplicate });
 }

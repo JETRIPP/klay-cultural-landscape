@@ -67,6 +67,14 @@ export async function getUsedSlugs(): Promise<Set<string>> {
   return new Set(rows.map((r) => r.id));
 }
 
+// A single indexed lookup by primary key - used to name a possible-duplicate
+// warning (research/route.ts already knows the *id* a name would collide
+// with via getUsedSlugs(), but not the existing entrant's display name).
+export async function getEntrantNameById(id: string): Promise<string | null> {
+  const rows = (await sql`SELECT name FROM entrants WHERE id = ${id}`) as { name: string }[];
+  return rows[0]?.name ?? null;
+}
+
 // buildEdgesForNewNode() needs full bio/cv text for every existing node to
 // do its named-mention regex matching, not just ids - fine at this dataset's
 // size (~500 rows, a few hundred KB of text total).

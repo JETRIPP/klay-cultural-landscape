@@ -22,6 +22,7 @@ export default function AddEntrantBar({ knownCategories }: Props) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
   const [entrant, setEntrant] = useState<GraphNode | null>(null);
+  const [possibleDuplicate, setPossibleDuplicate] = useState<{ id: string; name: string } | null>(null);
   const [category, setCategory] = useState(""); // a knownCategories value, or NEW_CATEGORY_OPTION
   const [newCategory, setNewCategory] = useState("");
   const modalContainerRef = useRef<HTMLDivElement>(null);
@@ -62,6 +63,7 @@ export default function AddEntrantBar({ knownCategories }: Props) {
       if (!res.ok || !data) throw new Error(data?.error || fallbackErrorMessage(res));
       const researched = data.entrant as GraphNode;
       setEntrant(researched);
+      setPossibleDuplicate((data.possibleDuplicate as { id: string; name: string } | null) ?? null);
       // Claude is prompted to prefer an existing category, but may still
       // propose a new one - default the picker to whichever mode matches
       // what came back instead of silently discarding a novel category.
@@ -108,6 +110,7 @@ export default function AddEntrantBar({ knownCategories }: Props) {
 
   function handleDiscard() {
     setEntrant(null);
+    setPossibleDuplicate(null);
     setQuery("");
     setCategory("");
     setNewCategory("");
@@ -142,6 +145,11 @@ export default function AddEntrantBar({ knownCategories }: Props) {
           <div className="relative flex max-h-[80dvh] w-full max-w-lg flex-col border border-white/15 bg-ink-raised">
             <div ref={modalContainerRef} className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto py-5 pl-5 pr-3">
               <div ref={modalContentRef} className="flex flex-col gap-4">
+                {possibleDuplicate && (
+                  <p className="border border-accent/40 bg-accent/10 px-3 py-2 font-mono text-[11px] uppercase tracking-wide text-accent">
+                    Possible duplicate — &ldquo;{possibleDuplicate.name}&rdquo; already exists in the map
+                  </p>
+                )}
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-wide text-white/40">Review before adding</p>
                   <p className="mt-1 text-sm font-medium text-white">{entrant.name}</p>

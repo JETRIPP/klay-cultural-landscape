@@ -152,11 +152,18 @@ export function regionForCountry(country: string | null): string {
   return COUNTRY_TO_REGION[country] ?? "Unmapped";
 }
 
-export function slugify(name: string, used: Set<string>): string {
-  const base = name
+// The un-suffixed slug a name normalizes to, before any collision
+// disambiguation - two names producing the same base slug is a strong
+// signal they're the same entrant (used for duplicate-add warnings).
+export function baseSlug(name: string): string {
+  return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+export function slugify(name: string, used: Set<string>): string {
+  const base = baseSlug(name);
   let slug = base;
   let i = 2;
   while (used.has(slug)) {
