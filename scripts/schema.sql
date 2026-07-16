@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS entrants (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   category TEXT NOT NULL,
-  location JSONB NOT NULL,
+  locations JSONB NOT NULL, -- array of {raw, city, country, region}; almost always one element
   bio TEXT,
   cv TEXT,
   notable_work JSONB NOT NULL DEFAULT '[]',

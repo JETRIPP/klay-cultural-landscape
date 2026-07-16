@@ -129,9 +129,12 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
     const ids = new Set<string>();
     for (const n of nodes) {
       if (selectedCategories.size > 0 && !selectedCategories.has(n.category)) continue;
-      if (region && n.location.region !== region) continue;
-      if (country && n.location.country !== country) continue;
-      if (city && (n.location.city ?? "Unspecified") !== city) continue;
+      // A node with multiple locations matches a region/country/city filter
+      // if *any* of them fits - it should show up under every place it
+      // actually has a presence in, not just its first/primary one.
+      if (region && !n.locations.some((loc) => loc.region === region)) continue;
+      if (country && !n.locations.some((loc) => loc.country === country)) continue;
+      if (city && !n.locations.some((loc) => (loc.city ?? "Unspecified") === city)) continue;
       ids.add(n.id);
     }
     return ids;

@@ -31,9 +31,9 @@ async function main() {
 
   for (const node of graph.nodes) {
     await sql`
-      INSERT INTO entrants (id, name, category, location, bio, cv, notable_work, socials)
+      INSERT INTO entrants (id, name, category, locations, bio, cv, notable_work, socials)
       VALUES (
-        ${node.id}, ${node.name}, ${node.category}, ${JSON.stringify(node.location)},
+        ${node.id}, ${node.name}, ${node.category}, ${JSON.stringify([node.location])},
         ${node.bio}, ${node.cv}, ${JSON.stringify(node.notableWork)}, ${JSON.stringify(node.socials)}
       )
     `;

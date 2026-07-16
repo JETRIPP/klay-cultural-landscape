@@ -153,8 +153,10 @@ export default function AddEntrantBar({ knownCategories }: Props) {
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-wide text-white/40">Review before adding</p>
                   <p className="mt-1 text-sm font-medium text-white">{entrant.name}</p>
-                  {entrant.location.raw && (
-                    <p className="mt-0.5 font-mono text-[11px] uppercase tracking-wide text-white/50">{entrant.location.raw}</p>
+                  {entrant.locations.some((loc) => loc.raw) && (
+                    <p className="mt-0.5 font-mono text-[11px] uppercase tracking-wide text-white/50">
+                      {entrant.locations.map((loc) => loc.raw).filter(Boolean).join(" / ")}
+                    </p>
                   )}
                 </div>
 

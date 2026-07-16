@@ -150,7 +150,11 @@ export default function DetailPanel({ node, inViewIds, nodeById, neighborsOf, kn
                   style={{ background: colorForCategory(node.category) }}
                 />
                 {node.category}
-                {node.location.raw && <span className="text-white/30">· {node.location.raw}</span>}
+                {node.locations.some((loc) => loc.raw) && (
+                  <span className="text-white/30">
+                    · {node.locations.map((loc) => loc.raw).filter(Boolean).join(" / ")}
+                  </span>
+                )}
                 <button
                   onClick={startEditingCategory}
                   className="font-mono text-[10px] uppercase tracking-wide text-white/30 hover:text-accent"

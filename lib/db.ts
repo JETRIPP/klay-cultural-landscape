@@ -22,7 +22,7 @@ interface EntrantRow {
   id: string;
   name: string;
   category: string;
-  location: GraphNode["location"];
+  locations: GraphNode["locations"];
   bio: string | null;
   cv: string | null;
   notable_work: GraphNode["notableWork"];
@@ -40,7 +40,7 @@ function rowToNode(row: EntrantRow): GraphNode {
     id: row.id,
     name: row.name,
     category: row.category,
-    location: row.location,
+    locations: row.locations,
     bio: row.bio,
     cv: row.cv,
     notableWork: row.notable_work,
@@ -50,7 +50,7 @@ function rowToNode(row: EntrantRow): GraphNode {
 
 export async function getGraphData(): Promise<GraphData> {
   const [entrantRows, edgeRows] = await Promise.all([
-    sql`SELECT id, name, category, location, bio, cv, notable_work, socials FROM entrants`,
+    sql`SELECT id, name, category, locations, bio, cv, notable_work, socials FROM entrants`,
     sql`SELECT source, target, context FROM edges`,
   ]);
 
@@ -79,15 +79,15 @@ export async function getEntrantNameById(id: string): Promise<string | null> {
 // do its named-mention regex matching, not just ids - fine at this dataset's
 // size (~500 rows, a few hundred KB of text total).
 export async function getAllNodesForMatching(): Promise<GraphNode[]> {
-  const rows = (await sql`SELECT id, name, category, location, bio, cv, notable_work, socials FROM entrants`) as EntrantRow[];
+  const rows = (await sql`SELECT id, name, category, locations, bio, cv, notable_work, socials FROM entrants`) as EntrantRow[];
   return rows.map(rowToNode);
 }
 
 export async function insertEntrant(node: GraphNode, edges: GraphEdge[]): Promise<void> {
   await sql`
-    INSERT INTO entrants (id, name, category, location, bio, cv, notable_work, socials)
+    INSERT INTO entrants (id, name, category, locations, bio, cv, notable_work, socials)
     VALUES (
-      ${node.id}, ${node.name}, ${node.category}, ${JSON.stringify(node.location)},
+      ${node.id}, ${node.name}, ${node.category}, ${JSON.stringify(node.locations)},
       ${node.bio}, ${node.cv}, ${JSON.stringify(node.notableWork)}, ${JSON.stringify(node.socials)}
     )
   `;
@@ -107,7 +107,7 @@ export async function updateEntrantCategory(id: string, category: string): Promi
   const rows = (await sql`
     UPDATE entrants SET category = ${category}, updated_at = now()
     WHERE id = ${id}
-    RETURNING id, name, category, location, bio, cv, notable_work, socials
+    RETURNING id, name, category, locations, bio, cv, notable_work, socials
   `) as EntrantRow[];
   return rows.length > 0 ? rowToNode(rows[0]) : null;
 }

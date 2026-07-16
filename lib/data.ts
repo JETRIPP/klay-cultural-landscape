@@ -55,18 +55,40 @@ export interface LocationTree {
   };
 }
 
+// A node with locations in more than one region shows up - and counts -
+// under every one of them, not just a single "primary" location. The
+// per-node seen-sets keep a node with two cities in the same
+// region/country from being double-counted there.
 export function computeLocationTree(nodes: GraphNode[]): LocationTree {
   const tree: LocationTree = {};
   for (const n of nodes) {
-    const { region, country, city } = n.location;
-    if (!country) continue;
-    tree[region] ??= { count: 0, countries: {} };
-    tree[region].count += 1;
-    tree[region].countries[country] ??= { count: 0, cities: {} };
-    tree[region].countries[country].count += 1;
-    const cityKey = city ?? "Unspecified";
-    tree[region].countries[country].cities[cityKey] =
-      (tree[region].countries[country].cities[cityKey] ?? 0) + 1;
+    const seenRegions = new Set<string>();
+    const seenCountries = new Set<string>();
+    const seenCities = new Set<string>();
+    for (const { region, country, city } of n.locations) {
+      if (!country) continue;
+
+      if (!seenRegions.has(region)) {
+        seenRegions.add(region);
+        tree[region] ??= { count: 0, countries: {} };
+        tree[region].count += 1;
+      }
+
+      const countryKey = `${region}|${country}`;
+      if (!seenCountries.has(countryKey)) {
+        seenCountries.add(countryKey);
+        tree[region].countries[country] ??= { count: 0, cities: {} };
+        tree[region].countries[country].count += 1;
+      }
+
+      const cityLabel = city ?? "Unspecified";
+      const cityKey = `${countryKey}|${cityLabel}`;
+      if (!seenCities.has(cityKey)) {
+        seenCities.add(cityKey);
+        tree[region].countries[country].cities[cityLabel] =
+          (tree[region].countries[country].cities[cityLabel] ?? 0) + 1;
+      }
+    }
   }
   return tree;
 }

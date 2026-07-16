@@ -23,7 +23,11 @@ export interface GraphNode {
   id: string;
   name: string;
   category: string;
-  location: LocationInfo;
+  // Always at least one entry; locations[0] is the "primary" location used
+  // wherever only a single compact location needs to be shown (search
+  // results, the DetailPanel header). Entrants with a real multi-city/region
+  // presence (e.g. a studio with several office locations) have more.
+  locations: LocationInfo[];
   bio: string | null;
   cv: string | null;
   notableWork: NotableWork[];

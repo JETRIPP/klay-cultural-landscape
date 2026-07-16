@@ -52,9 +52,12 @@ export default function FacetBar({
       .filter(
         (n) =>
           n.name.toLowerCase().includes(q) ||
-          n.location.raw?.toLowerCase().includes(q) ||
-          n.location.city?.toLowerCase().includes(q) ||
-          n.location.country?.toLowerCase().includes(q)
+          n.locations.some(
+            (loc) =>
+              loc.raw?.toLowerCase().includes(q) ||
+              loc.city?.toLowerCase().includes(q) ||
+              loc.country?.toLowerCase().includes(q)
+          )
       )
       .slice(0, 8);
   }, [query, allNodes]);
@@ -163,7 +166,8 @@ export default function FacetBar({
                   {n.name}
                   <span className="ml-1.5 text-white/40">
                     {n.category}
-                    {n.location.raw ? ` · ${n.location.raw}` : ""}
+                    {n.locations[0]?.raw ? ` · ${n.locations[0].raw}` : ""}
+                    {n.locations.length > 1 ? ` +${n.locations.length - 1}` : ""}
                   </span>
                 </button>
               ))}

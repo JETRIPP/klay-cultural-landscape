@@ -27,9 +27,20 @@ export const RECORD_ENTRANT_TOOL = {
         type: "string",
         description: `Best-fit role/category. Prefer one of the existing categories if it fits: ${KNOWN_CATEGORIES.join(", ")}. Otherwise propose a short, similarly-styled new one.`,
       },
-      locationRaw: { type: "string", description: "Location as a short human string, e.g. \"Brooklyn, NY\" or \"London, UK\". Empty string if unknown." },
-      locationCity: { type: ["string", "null"], description: "City name only, or null if unknown." },
-      locationCountry: { type: ["string", "null"], description: "Country name only (e.g. \"United States\", \"United Kingdom\"), or null if unknown." },
+      locations: {
+        type: "array",
+        description: "One entry per distinct city/region this person or org is based in or actually operates from. Almost always exactly one entry - only include more than one if they genuinely have multiple offices/locations (e.g. a studio with real presence in several cities), not just clients or coverage in other places.",
+        items: {
+          type: "object",
+          properties: {
+            raw: { type: "string", description: "Location as a short human string, e.g. \"Brooklyn, NY\" or \"London, UK\". Empty string if unknown." },
+            city: { type: ["string", "null"], description: "City name only, or null if unknown." },
+            country: { type: ["string", "null"], description: "Country name only (e.g. \"United States\", \"United Kingdom\"), or null if unknown." },
+          },
+          required: ["raw", "city", "country"],
+          additionalProperties: false,
+        },
+      },
       bio: { type: "string", description: "2-4 sentence factual bio." },
       cv: { type: ["string", "null"], description: "Career highlights / notable roles, or null if none found." },
       notableWork: {
@@ -53,7 +64,7 @@ export const RECORD_ENTRANT_TOOL = {
       twitter: { type: ["string", "null"], description: "Twitter/X handle (with @) or URL." },
     },
     required: [
-      "name", "category", "locationRaw", "locationCity", "locationCountry", "bio", "cv",
+      "name", "category", "locations", "bio", "cv",
       "notableWork", "mainUrl", "website", "instagram", "tiktok", "twitter",
     ],
     additionalProperties: false,
@@ -63,9 +74,7 @@ export const RECORD_ENTRANT_TOOL = {
 export interface RecordEntrantInput {
   name: string;
   category: string;
-  locationRaw: string;
-  locationCity: string | null;
-  locationCountry: string | null;
+  locations: { raw: string; city: string | null; country: string | null }[];
   bio: string;
   cv: string | null;
   notableWork: { label: string; url: string | null; kind: NotableWork["kind"] }[];
@@ -77,16 +86,20 @@ export interface RecordEntrantInput {
 }
 
 export function buildNodeFromInput(input: RecordEntrantInput, usedSlugs: Set<string>): GraphNode {
+  const locations = input.locations.length
+    ? input.locations.map((loc) => ({
+        raw: loc.raw || "Unknown",
+        city: loc.city,
+        country: loc.country,
+        region: regionForCountry(loc.country),
+      }))
+    : [{ raw: "Unknown", city: null, country: null, region: "Unknown" }];
+
   return {
     id: slugify(input.name, usedSlugs),
     name: input.name,
     category: input.category,
-    location: {
-      raw: input.locationRaw || "Unknown",
-      city: input.locationCity,
-      country: input.locationCountry,
-      region: regionForCountry(input.locationCountry),
-    },
+    locations,
     bio: input.bio || null,
     cv: input.cv,
     notableWork: input.notableWork.slice(0, 3).map((w) => ({ label: w.label, url: w.url, kind: w.kind })),

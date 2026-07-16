@@ -22,11 +22,14 @@ export interface CanvasNode {
   y?: number;
 }
 
+// The canvas label only ever shows the primary (first) location - the full
+// multi-location list (for entrants with more than one) is in DetailPanel.
 function locationLabel(n: GraphNode): string | null {
-  const { city, country, raw } = n.location;
-  if (city) return city;
-  if (country) return country;
-  return raw || null;
+  const primary = n.locations[0];
+  if (!primary) return null;
+  if (primary.city) return primary.city;
+  if (primary.country) return primary.country;
+  return primary.raw || null;
 }
 
 export interface CanvasLink {
