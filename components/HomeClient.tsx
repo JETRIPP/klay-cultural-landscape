@@ -13,6 +13,7 @@ import {
   computeCategories,
   computeKnownCategoryNames,
   computeLocationTree,
+  computeNewThisMonthIds,
 } from "@/lib/data";
 import { colorForCategory } from "@/lib/colors";
 import type { GraphNode, GraphEdge } from "@/lib/types";
@@ -31,8 +32,10 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
   const categories = useMemo(() => computeCategories(nodes), [nodes]);
   const knownCategoryNames = useMemo(() => computeKnownCategoryNames(nodes), [nodes]);
   const locationTree = useMemo(() => computeLocationTree(nodes), [nodes]);
+  const newThisMonthIds = useMemo(() => computeNewThisMonthIds(nodes), [nodes]);
 
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
+  const [newThisMonthSelected, setNewThisMonthSelected] = useState(false);
   const [region, setRegion] = useState<string | null>(null);
   const [country, setCountry] = useState<string | null>(null);
   const [city, setCity] = useState<string | null>(null);
@@ -56,7 +59,7 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
     if (img?.complete && img.naturalWidth) setLogoAspect(img.naturalWidth / img.naturalHeight);
   }, []);
 
-  const hasFacet = selectedCategories.size > 0 || region !== null;
+  const hasFacet = selectedCategories.size > 0 || newThisMonthSelected || region !== null;
   const hasActiveFilters = hasFacet || seedId !== null;
 
   function leaveSeedMode() {
@@ -71,6 +74,11 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
       else next.add(name);
       return next;
     });
+  }
+
+  function toggleNewThisMonth() {
+    leaveSeedMode();
+    setNewThisMonthSelected((prev) => !prev);
   }
 
   function changeRegion(r: string | null) {
@@ -111,6 +119,7 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
 
   function reset() {
     setSelectedCategories(new Set());
+    setNewThisMonthSelected(false);
     setRegion(null);
     setCountry(null);
     setCity(null);
@@ -128,7 +137,14 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
     if (!hasFacet) return new Set<string>();
     const ids = new Set<string>();
     for (const n of nodes) {
-      if (selectedCategories.size > 0 && !selectedCategories.has(n.category)) continue;
+      // "New This Month" is a virtual category, not a real n.category value -
+      // it ORs in alongside whichever real categories are selected, matching
+      // how multiple real categories already OR together.
+      if (selectedCategories.size > 0 || newThisMonthSelected) {
+        const inCategory = selectedCategories.size > 0 && selectedCategories.has(n.category);
+        const inNewThisMonth = newThisMonthSelected && newThisMonthIds.has(n.id);
+        if (!inCategory && !inNewThisMonth) continue;
+      }
       // A node with multiple locations matches a region/country/city filter
       // if *any* of them fits - it should show up under every place it
       // actually has a presence in, not just its first/primary one.
@@ -138,7 +154,7 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
       ids.add(n.id);
     }
     return ids;
-  }, [seedId, hasFacet, selectedCategories, region, country, city, nodes, neighborsOf]);
+  }, [seedId, hasFacet, selectedCategories, newThisMonthSelected, newThisMonthIds, region, country, city, nodes, neighborsOf]);
 
   const effectiveIds = useMemo(() => {
     const ids = new Set(primaryIds);
@@ -244,6 +260,9 @@ export default function HomeClient({ initialNodes, initialEdges }: Props) {
         categories={categories}
         selectedCategories={selectedCategories}
         onToggleCategory={toggleCategory}
+        newThisMonthCount={newThisMonthIds.size}
+        newThisMonthSelected={newThisMonthSelected}
+        onToggleNewThisMonth={toggleNewThisMonth}
         locationTree={locationTree}
         region={region}
         country={country}

@@ -110,6 +110,10 @@ export function buildNodeFromInput(input: RecordEntrantInput, usedSlugs: Set<str
       tiktok: input.tiktok,
       twitter: input.twitter,
     },
+    // A placeholder for the client-side preview shown before /confirm - the
+    // database assigns the real value via its own now() default on insert,
+    // which is what actually persists and is what a page reload picks up.
+    createdAt: new Date().toISOString(),
   };
 }
 

@@ -9,6 +9,9 @@ interface Props {
   categories: { name: string; count: number }[];
   selectedCategories: Set<string>;
   onToggleCategory: (name: string) => void;
+  newThisMonthCount: number;
+  newThisMonthSelected: boolean;
+  onToggleNewThisMonth: () => void;
   locationTree: LocationTree;
   region: string | null;
   country: string | null;
@@ -26,6 +29,9 @@ export default function FacetBar({
   categories,
   selectedCategories,
   onToggleCategory,
+  newThisMonthCount,
+  newThisMonthSelected,
+  onToggleNewThisMonth,
   locationTree,
   region,
   country,
@@ -65,6 +71,22 @@ export default function FacetBar({
   return (
     <div className="flex flex-col gap-3 border-b border-white/10 pb-3">
       <div className="scrollbar-hidden -mx-4 flex flex-nowrap items-center gap-x-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:gap-y-2 sm:overflow-visible sm:px-0 sm:pb-0">
+        {newThisMonthCount > 0 && (
+          <button
+            onClick={onToggleNewThisMonth}
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-accent/60 px-2.5 py-1 text-xs transition-colors"
+            style={{
+              background: newThisMonthSelected ? "var(--color-accent)" : "transparent",
+              color: newThisMonthSelected ? "#0b0a09" : "var(--color-accent)",
+            }}
+          >
+            {!newThisMonthSelected && <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />}
+            New This Month
+            <span className={`font-mono text-[10px] ${newThisMonthSelected ? "opacity-70" : "text-accent/70"}`}>
+              {newThisMonthCount}
+            </span>
+          </button>
+        )}
         {categories.map((c) => {
           const active = selectedCategories.has(c.name);
           const color = colorForCategory(c.name);

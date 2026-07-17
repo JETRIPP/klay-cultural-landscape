@@ -32,6 +32,8 @@ export interface GraphNode {
   cv: string | null;
   notableWork: NotableWork[];
   socials: Socials;
+  // ISO timestamp - drives the "New This Month" virtual filter.
+  createdAt: string;
 }
 
 export interface GraphEdge {

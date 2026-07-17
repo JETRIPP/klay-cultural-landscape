@@ -27,6 +27,7 @@ interface EntrantRow {
   cv: string | null;
   notable_work: GraphNode["notableWork"];
   socials: GraphNode["socials"];
+  created_at: string;
 }
 
 interface EdgeRow {
@@ -45,12 +46,13 @@ function rowToNode(row: EntrantRow): GraphNode {
     cv: row.cv,
     notableWork: row.notable_work,
     socials: row.socials,
+    createdAt: row.created_at,
   };
 }
 
 export async function getGraphData(): Promise<GraphData> {
   const [entrantRows, edgeRows] = await Promise.all([
-    sql`SELECT id, name, category, locations, bio, cv, notable_work, socials FROM entrants`,
+    sql`SELECT id, name, category, locations, bio, cv, notable_work, socials, created_at FROM entrants`,
     sql`SELECT source, target, context FROM edges`,
   ]);
 
@@ -79,7 +81,7 @@ export async function getEntrantNameById(id: string): Promise<string | null> {
 // do its named-mention regex matching, not just ids - fine at this dataset's
 // size (~500 rows, a few hundred KB of text total).
 export async function getAllNodesForMatching(): Promise<GraphNode[]> {
-  const rows = (await sql`SELECT id, name, category, locations, bio, cv, notable_work, socials FROM entrants`) as EntrantRow[];
+  const rows = (await sql`SELECT id, name, category, locations, bio, cv, notable_work, socials, created_at FROM entrants`) as EntrantRow[];
   return rows.map(rowToNode);
 }
 
@@ -107,7 +109,7 @@ export async function updateEntrantCategory(id: string, category: string): Promi
   const rows = (await sql`
     UPDATE entrants SET category = ${category}, updated_at = now()
     WHERE id = ${id}
-    RETURNING id, name, category, locations, bio, cv, notable_work, socials
+    RETURNING id, name, category, locations, bio, cv, notable_work, socials, created_at
   `) as EntrantRow[];
   return rows.length > 0 ? rowToNode(rows[0]) : null;
 }

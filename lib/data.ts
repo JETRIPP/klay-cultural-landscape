@@ -42,6 +42,19 @@ export function computeKnownCategoryNames(nodes: GraphNode[]): string[] {
   return Array.from(names).sort((a, b) => a.localeCompare(b));
 }
 
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+// "New This Month" is a rolling window - the last 30 days up to now - not a
+// calendar-month boundary, so it doesn't reset to empty right after the 1st.
+export function computeNewThisMonthIds(nodes: GraphNode[], now: Date = new Date()): Set<string> {
+  const cutoff = now.getTime() - THIRTY_DAYS_MS;
+  const ids = new Set<string>();
+  for (const n of nodes) {
+    if (Date.parse(n.createdAt) >= cutoff) ids.add(n.id);
+  }
+  return ids;
+}
+
 // region -> country -> city -> count, built from nodes with a resolved country
 export interface LocationTree {
   [region: string]: {
